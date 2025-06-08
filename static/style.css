@@ -1,0 +1,153 @@
+/* General styles */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  background: #f8f9fa;
+  color: #333;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: #121212;
+  color: #eaeaea;
+}
+
+.container {
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 1rem 2rem;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.dark-toggle {
+  font-size: 1rem;
+}
+
+/* Search bar */
+.search-bar {
+  margin-top: 1.5rem;
+  position: relative;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.search-bar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  background: white;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 5;
+}
+
+.search-bar ul li {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.search-bar ul li:hover {
+  background: #eee;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Book grid */
+#results {
+  margin-top: 2rem;
+}
+
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+}
+
+.book-card {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+}
+
+.book-card img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  background: #eee;
+}
+
+.book-info {
+  padding: 1rem;
+}
+
+.book-info h3 {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.book-info p {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.3rem;
+}
+
+/* Dark mode overrides */
+body.dark .search-bar input,
+body.dark .search-bar ul,
+body.dark .book-card,
+body.dark .container {
+  background: #1e1e1e;
+  color: #eaeaea;
+  border-color: #444;
+}
+
+body.dark .book-info p {
+  color: #aaa;
+}
+
+.no-result {
+  font-size: 1rem;
+  color: red;
+  margin-top: 1rem;
+}

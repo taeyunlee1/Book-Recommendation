@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Recommender</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Discover Your Next Read</h1>
+      <label class="dark-toggle">
+        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()"> Dark Mode
+      </label>
+    </header>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search for a book..." autocomplete="off">
+      <ul id="suggestions"></ul>
+      <button onclick="getRecommendations()">Recommend</button>
+    </div>
+
+    <div id="results"></div>
+  </div>
+
+  <script>
+    const books = {{ books | tojson }};
+    const input = document.getElementById('searchInput');
+    const suggestions = document.getElementById('suggestions');
+    let selectedBook = "";
+
+    input.addEventListener('input', () => {
+      const value = input.value.toLowerCase();
+      suggestions.innerHTML = "";
+      books.filter(b => b["Book-Title"].toLowerCase().includes(value)).slice(0, 6).forEach(book => {
+        const li = document.createElement("li");
+        li.textContent = book["Book-Title"];
+        li.onclick = () => {
+          input.value = book["Book-Title"];
+          selectedBook = book["Book-Title"];
+          suggestions.innerHTML = "";
+        };
+        suggestions.appendChild(li);
+      });
+    });
+
+    function getRecommendations() {
+      const title = selectedBook || input.value;
+      fetch('/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const results = document.getElementById('results');
+        if (!data.length) {
+          results.innerHTML = "<p class='no-result'>No recommendations found.</p>";
+          return;
+        }
+
+        results.innerHTML = "<h2>Recommended Books:</h2><div class='book-grid'>" +
+          data.map(b => `
+            <div class='book-card'>
+              <img src="${b['Image-URL-M']}" onerror="this.src='/static/fallback.jpg'">
+              <div class='book-info'>
+                <h3>${b['Book-Title']}</h3>
+                <p>${b['Book-Author']}</p>
+                ${b['Book-Rating'] ? `<p class='rating'>⭐ ${b['Book-Rating'].toFixed(1)} / 10</p>` : ""}
+                <p class='rating'>
+                  ⭐ ${b['Avg-Rating'] ? (b['Avg-Rating'] / 2).toFixed(1) + ' / 5' : 'No rating'} 
+                  ${b['Num-Ratings'] ? `(${b['Num-Ratings']} reviews)` : ''}
+                </p>
+
+              </div>
+            </div>
+          `).join('') + "</div>";
+      });
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+    }
+  </script>
+</body>
+</html>
