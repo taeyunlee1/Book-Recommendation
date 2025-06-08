@@ -111,13 +111,4 @@ If cloned from this repo, CSVs are preloaded.
 
 ---
 
-## Future Ideas
-
-- Content-based recommendations (TF-IDF, genres, authors)
-- Hybrid recommender
-- User accounts + favorites
-- Docker deployment / Render hosting
-
----
-
 Pull requests and stars welcome!
