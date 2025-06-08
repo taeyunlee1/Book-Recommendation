@@ -36,7 +36,45 @@ book-recommender/
 
 ---
 
-## 🛠Setup Instructions
+## Technical Overview
+
+### Recommendation Engine
+- Based on collaborative filtering using **user-book rating matrix**
+- Implemented with `pandas.pivot_table()` to build matrix
+- **Cosine similarity** computed using `sklearn.metrics.pairwise.cosine_similarity`
+- Recommends books similar in rating patterns to the selected title
+
+### Filtering
+- Filters to books with ≥10 ratings and users who rated ≥10 books to reduce matrix size
+- Ensures system runs in memory without crashing due to high sparsity
+
+### Matrix Shape
+- Typical filtered matrix: ~1000 users × 500 books
+- All ratings scaled from 0–10
+
+### Data Flow
+```text
+CSV files → load_data() → validate() → transform() → cosine similarity matrix
+                                      ↓
+                          get_recommendations(title) → top-N similar titles
+```
+
+### Frontend Interaction
+- `index.html` pulls `books` from the backend and renders a search bar
+- JavaScript sends POST request to `/recommend` with selected book title
+- Renders response into responsive cards with:
+  - Title
+  - Author
+  - Cover image
+  - ⭐ Average rating (/5)
+  - Number of reviews
+
+### Book Cover + Metadata
+- Pulled from `BX-Books.csv`'s `Image-URL-M` and author fields
+- Ratings aggregated from `BX-Book-Ratings.csv`
+- If a book has no reviews, UI hides the rating field
+- 
+## Setup Instructions
 
 ```bash
 # 1. Clone the repo
