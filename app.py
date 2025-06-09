@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, json
 import pandas as pd
 from recommender.TrainingPipeline import get_recommendations, similarity_df
 from logger import logger
@@ -31,24 +31,40 @@ def recommend():
         logger.info(f"Recommendation requested for: {title}")
         recs = get_recommendations(title)
 
-        # Load ratings data
+        # Load ratings
         ratings = pd.read_csv("data/BX-Book-Ratings.csv", sep=";", encoding="latin-1", on_bad_lines='skip', low_memory=False)
         ratings.columns = ratings.columns.str.strip().str.replace('"', '')
 
-        # Filter and aggregate rating info
+        # Compute average ratings
         avg_ratings = ratings[ratings['ISBN'].notna() & ratings['Book-Rating'] > 0]
         avg_ratings = avg_ratings.groupby('ISBN')['Book-Rating'].agg(['mean', 'count']).reset_index()
         avg_ratings.columns = ['ISBN', 'Avg-Rating', 'Num-Ratings']
 
-        # Merge with metadata
-        merged = book_meta[book_meta['Book-Title'].isin(recs)].merge(books[['ISBN', 'Book-Title']], on='Book-Title')
-        result = merged.merge(avg_ratings, on='ISBN', how='left').to_dict(orient='records')
+        # Merge metadata
+        merged = book_meta[book_meta['Book-Title'].isin(recs)].merge(
+            books[['ISBN', 'Book-Title']], on='Book-Title'
+        )
+
+        # Drop conflicting columns before merge
+        for col in ['Avg-Rating', 'Num-Ratings']:
+            if col in merged.columns:
+                merged.drop(columns=[col], inplace=True)
+
+        merged = merged.merge(avg_ratings, on='ISBN', how='left')
+
+        logger.info(f"Columns in merged: {merged.columns.tolist()}")
+        logger.info(f"Sample merged data: {merged.head(1).to_dict()}")
+
+        if 'Avg-Rating' in merged.columns:
+            merged['Avg-Rating'] = merged['Avg-Rating'].round(1)
+
+        merged = merged.where(pd.notnull(merged), None)
+        result = json.loads(merged.to_json(orient='records'))
 
         return jsonify(result)
     except Exception as e:
         logger.error(f"Error generating recommendations: {e}")
         return jsonify([])
-
 
 if __name__ == "__main__":
     logger.info("Starting Flask app...")
